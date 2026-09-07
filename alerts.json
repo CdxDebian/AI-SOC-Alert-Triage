@@ -1,0 +1,37 @@
+[
+  {
+    "id": "ALERT-001",
+    "type": "Multiple Failed Logins",
+    "source_ip": "185.220.101.45",
+    "timestamp": "2026-09-03T09:15:22Z",
+    "raw_log_line": "Failed password for admin from 185.220.101.45 port 4421 ssh2"
+  },
+  {
+    "id": "ALERT-002",
+    "type": "Successful Login After Failures",
+    "source_ip": "185.220.101.45",
+    "timestamp": "2026-09-03T09:17:11Z",
+    "raw_log_line": "Accepted password for admin from 185.220.101.45 port 4421 ssh2"
+  },
+  {
+    "id": "ALERT-003",
+    "type": "Suspicious PowerShell",
+    "source_ip": "10.0.0.25",
+    "timestamp": "2026-09-03T10:05:44Z",
+    "raw_log_line": "powershell.exe -enc SQBtAHAAbwByAHQAYQBuAHQAIABjAG8AbQBtAGEAbgBkAA=="
+  },
+  {
+    "id": "ALERT-004",
+    "type": "Possible Malware",
+    "source_ip": "10.0.0.42",
+    "timestamp": "2026-09-03T11:22:31Z",
+    "raw_log_line": "Endpoint detected suspicious executable sample.exe launched from C:\\Users\\Public\\Downloads"
+  },
+  {
+    "id": "ALERT-005",
+    "type": "Port Scan",
+    "source_ip": "192.168.1.55",
+    "timestamp": "2026-09-03T12:01:19Z",
+    "raw_log_line": "Multiple connection attempts detected against ports 22, 80, 443, 445, 3389"
+  }
+]

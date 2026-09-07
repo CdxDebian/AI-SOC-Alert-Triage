@@ -1,0 +1,105 @@
+
+============================================================
+ALERT-001
+============================================================
+{
+  "severity_score": 60,
+  "severity": "MEDIUM",
+  "mitre_attack": [
+    {
+      "technique_id": "T1059.001",
+      "technique_name": "Reconnaissance via Network Services"
+    }
+  ],
+  "summary": "Multiple failed login attempts were detected from a known IP address (185.220.101.45) on port 4421 using SSH2 protocol. The login attempt was for the 'admin' account.",
+  "recommended_next_action": "Investigate the source IP address to determine the potential threat actor or location, and review network logs for any other suspicious activity.",
+  "confidence": "MEDIUM",
+  "reasoning": "The source IP address is known to be associated with a compromised server hosting the Tor network. While the login attempt was unsuccessful, it is possible that the attacker is attempting to gain access to the system. Further investigation is required to determine the intent and potential impact of this activity.",
+  "rule_score": 3,
+  "rule_severity": "medium",
+  "final_decision": "HUMAN_REVIEW_REQUIRED"
+}
+
+============================================================
+ALERT-002
+============================================================
+{
+  "severity_score": 60,
+  "severity": "MEDIUM",
+  "mitre_attack": [
+    {
+      "technique_id": "T1059.001",
+      "technique_name": "Privilege Escalation via Multiple Failed Login Attempts"
+    }
+  ],
+  "summary": "A user successfully logged in to the system after multiple failed login attempts, indicating potential privilege escalation attempts.",
+  "recommended_next_action": "Investigate the user's privileges and activities to determine the intent behind the login attempts.",
+  "confidence": "MEDIUM",
+  "reasoning": "The successful login after multiple failed attempts suggests that the attacker may have gained knowledge of the system's login mechanisms or has obtained a valid password. Further investigation is required to determine the scope of the potential privilege escalation.",
+  "rule_score": 0,
+  "rule_severity": "low",
+  "final_decision": "HUMAN_REVIEW_REQUIRED"
+}
+
+============================================================
+ALERT-003
+============================================================
+{
+  "severity_score": 60,
+  "severity": "MEDIUM",
+  "mitre_attack": [
+    {
+      "technique_id": "T1003",
+      "technique_name": "Use of Base64 Encoding"
+    }
+  ],
+  "summary": "A suspicious PowerShell command with Base64 encoding was detected on the system. The command appears to be encoded, but the actual payload is unclear. Further investigation is required to determine the intent behind this command.",
+  "recommended_next_action": "Analyze the raw log to determine the actual payload of the Base64 encoded command and investigate the system for any signs of malicious activity.",
+  "confidence": "MEDIUM",
+  "reasoning": "The detection of Base64 encoding on a PowerShell command is suspicious, but it does not necessarily indicate malicious activity. However, the lack of clear context makes it difficult to determine the intent behind the command. Further analysis is required to determine the confidence in this detection.",
+  "rule_score": 0,
+  "rule_severity": "low",
+  "final_decision": "HUMAN_REVIEW_REQUIRED"
+}
+
+============================================================
+ALERT-004
+============================================================
+{
+  "severity_score": 60,
+  "severity": "MEDIUM",
+  "mitre_attack": [
+    {
+      "technique_id": "T1003: Use of Fileless Malware",
+      "technique_name": "Use of Fileless Malware"
+    }
+  ],
+  "summary": "An endpoint detected a suspicious executable sample.exe launched from a public download location, suggesting potential fileless malware activity.",
+  "recommended_next_action": "Investigate the source of the executable sample.exe and verify if it is legitimate or part of a malicious campaign.",
+  "confidence": "MEDIUM",
+  "reasoning": "The suspicious activity occurred on a public download location, which is a common vector for fileless malware. However, without further information on the executable's origin and behavior, it is difficult to confirm malicious intent.",
+  "rule_score": 7,
+  "rule_severity": "high",
+  "final_decision": "HUMAN_REVIEW_REQUIRED"
+}
+
+============================================================
+ALERT-005
+============================================================
+{
+  "severity_score": 60,
+  "severity": "MEDIUM",
+  "mitre_attack": [
+    {
+      "technique_id": "T1003: Use of Port Scanning",
+      "technique_name": "Use of Port Scanning"
+    }
+  ],
+  "summary": "Multiple connection attempts were detected against multiple ports on the target IP address, indicating potential reconnaissance or vulnerability scanning activity.",
+  "recommended_next_action": "Investigate the source IP address and determine the purpose of the port scan. Check for any open-source tools or scripts that may be used for port scanning.",
+  "confidence": "MEDIUM",
+  "reasoning": "The detection of multiple connection attempts against multiple ports on a single IP address is consistent with the tactics, techniques, and procedures (TTPs) used by threat actors to gather information about potential targets. However, without further information about the source IP address or the context of the scan, it is difficult to determine the intent behind the activity.",
+  "rule_score": 0,
+  "rule_severity": "low",
+  "final_decision": "HUMAN_REVIEW_REQUIRED"
+}
