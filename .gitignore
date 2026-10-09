@@ -1,2 +1,18 @@
-.env
+# Python
 __pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets — never commit
+.env
+.env.*
+
+# OS / editor noise
+.DS_Store
+._*
+Thumbs.db
+.vscode/
+.idea/

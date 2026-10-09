@@ -1,7 +1,10 @@
 import json
+import os
 
-from ollama import chat
-from rules import calculate_rule_score, severity_from_score
+from mitre import validate_mapping
+from rules import calculate_rule_score, expected_techniques, rule_findings, severity_from_score
+
+MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2:3b")
 
 
 SYSTEM_PROMPT = """
@@ -60,8 +63,10 @@ Raw Log:
 {alert["raw_log_line"]}
 """
 
+    from ollama import chat  # imported here so the deterministic checks run (and test) without Ollama
+
     response = chat(
-        model="llama3.2:3b",
+        model=MODEL,
         messages=[
             {
                 "role": "system",
@@ -83,11 +88,30 @@ Raw Log:
     return json.loads(result)
 
 
+def triage(alert):
+    """Full advisory assessment: LLM + independent rule engine + validated ATT&CK mapping."""
+    result = analyze_alert(alert)
+    return combine(alert, result)
+
+
+def combine(alert, llm_result):
+    """Attach the deterministic checks to an LLM result. Pure function, so it is testable without a model."""
+    result = dict(llm_result)
+    rule_score = calculate_rule_score(alert)
+    result["rule_score"] = rule_score
+    result["rule_severity"] = severity_from_score(rule_score)
+    result["rule_findings"] = [f["label"] for f in rule_findings(alert)]
+    result.update(validate_mapping(result.pop("mitre_attack", []), expected_techniques(alert)))
+
+    # AI is advisory only. Every alert goes to a human, whatever the scores say.
+    result["final_decision"] = "HUMAN_REVIEW_REQUIRED"
+    return result
+
+
 if __name__ == "__main__":
 
     with open("alerts.json", "r") as file:
         alerts = json.load(file)
-        #alerts = alerts[2:3] #TEMP- single alert for screenshot of terminal
 
     for alert in alerts:
 
@@ -95,16 +119,4 @@ if __name__ == "__main__":
         print(alert["id"])
         print("=" * 60)
 
-        rule_score = calculate_rule_score(alert)
-        rule_severity = severity_from_score(rule_score)
-
-        result = analyze_alert(alert)
-
-        result["rule_score"] = rule_score
-        result["rule_severity"] = rule_severity
-
-        # AI is advisory only.
-        # Final decision always requires human review.
-        result["final_decision"] = "HUMAN_REVIEW_REQUIRED"
-
-        print(json.dumps(result, indent=2))
+        print(json.dumps(triage(alert), indent=2))

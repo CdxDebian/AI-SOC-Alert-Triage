@@ -1,8 +1,9 @@
 import json
+
 import streamlit as st
 
-from triage import analyze_alert
 from rules import calculate_rule_score, severity_from_score
+from triage import triage
 
 st.set_page_config(
     page_title="AI SOC Alert Triage",
@@ -29,14 +30,14 @@ with col1:
 
 with col2:
     high_alerts = sum(
-        calculate_rule_score(alert) >= 60
+        severity_from_score(calculate_rule_score(alert)) in ("high", "critical")
         for alert in alerts
     )
     st.metric("High Priority", high_alerts)
 
 with col3:
     critical_alerts = sum(
-        calculate_rule_score(alert) >= 80
+        severity_from_score(calculate_rule_score(alert)) == "critical"
         for alert in alerts
     )
     st.metric("Critical", critical_alerts)
@@ -65,10 +66,10 @@ for alert in alerts:
 
             with st.spinner("AI analyzing alert..."):
 
-                ai_result = analyze_alert(alert)
+                ai_result = triage(alert)
 
-                rule_score = calculate_rule_score(alert)
-                rule_severity = severity_from_score(rule_score)
+                rule_score = ai_result["rule_score"]
+                rule_severity = ai_result["rule_severity"]
 
             st.write("### AI Assessment")
 
@@ -85,12 +86,24 @@ for alert in alerts:
                 f'**Confidence:** {ai_result["confidence"]}'
             )
 
-            st.write("### MITRE ATT&CK")
+            st.write(f'### MITRE ATT&CK (validated against ATT&CK v{ai_result["attack_version"]})')
 
-            for technique in ai_result["mitre_attack"]:
+            for t in ai_result["llm_techniques"]:
+                if t["status"] == "valid":
+                    st.success(f'{t["technique_id"]} - {t["technique_name"]}')
+                elif t["status"] == "name_mismatch":
+                    st.warning(
+                        f'{t["technique_id"]} is **{t["technique_name"]}**, '
+                        f'but the model labelled it "{t["model_label"]}". Treat this mapping as unreliable.'
+                    )
+                else:
+                    st.error(f'Model returned an invalid technique: {t["technique_id"]} ({t["status"]})')
+
+            if ai_result["rule_techniques"]:
                 st.write(
-                    f'{technique["technique_id"]} - '
-                    f'{technique["technique_name"]}'
+                    "Rule engine indicates: " + ", ".join(
+                        f'{t["technique_id"]} {t["technique_name"]}' for t in ai_result["rule_techniques"]
+                    ) + f'  ·  agreement: **{ai_result["mitre_agreement"]}**'
                 )
 
             st.write("### Plain-English Summary")
@@ -102,8 +115,9 @@ for alert in alerts:
             )
 
             st.write("### Rule-Based Assessment")
-            st.write(f"Rule Score: **{rule_score}/100**")
+            st.write(f"Rule Score: **{rule_score}/10**")
             st.write(f"Rule Severity: **{rule_severity}**")
+            st.write("Rules fired: " + (", ".join(ai_result["rule_findings"]) or "none"))
 
             st.warning(
                 "Human review required. The AI does not automatically "
